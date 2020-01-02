@@ -6,13 +6,113 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <TextView
+        android:id="@+id/fileNameLabelView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="@string/label_file_name"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="40dp"
+        app:layout_constraintBaseline_toBaselineOf="@id/fileNameValueView"
+        style="@style/LabelText"
+        />
+
+    <TextView
+        android:id="@+id/fileNameValueView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="long-file-name-here"
+        app:layout_constraintStart_toEndOf="@id/fileNameLabelView"
+        android:layout_marginStart="@dimen/data_view_offset"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintBottom_toTopOf="@id/lastUpdatedValueView"
+        style="@style/DataText"
+        />
+
+
+    <TextView
+        android:id="@+id/lastUpdatedLabelView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/fileNameLabelView"
+        app:layout_constraintBaseline_toBaselineOf="@id/lastUpdatedValueView"
+        android:text="@string/label_last_updated"
+        style="@style/LabelText"
+        />
+
+    <TextView
+        android:id="@+id/lastUpdatedValueView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/fileNameValueView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fileNameValueView"
+        app:layout_constraintBottom_toTopOf="@id/packageNameValueView"
+        style="@style/DataText"
+        tools:text="2020-01-02 12:30:00"
+        />
+
+
+    <TextView
+        android:id="@+id/packageNameLabelView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/fileNameLabelView"
+        app:layout_constraintBaseline_toBaselineOf="@id/packageNameValueView"
+        android:text="@string/label_package_name"
+        style="@style/LabelText"
+
+        />
+
+    <TextView
+        android:id="@+id/packageNameValueView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/fileNameValueView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lastUpdatedValueView"
+        app:layout_constraintBottom_toTopOf="@id/versionNameValueView"
+        style="@style/DataText"
+        tools:text = "com.example.app.name"
+        />
+
+    <TextView
+        android:id="@+id/versionNameLabelView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/fileNameLabelView"
+        app:layout_constraintBaseline_toBaselineOf="@id/versionNameValueView"
+        android:text="@string/label_version_name"
+        style="@style/LabelText"
+        />
+
+    <TextView
+        android:id="@+id/versionNameValueView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/fileNameValueView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/packageNameValueView"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:text="1.2.3"
+        style="@style/DataText"
+        />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="24dp"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:visibility="invisible"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

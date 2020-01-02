@@ -11,7 +11,10 @@ import com.mavenclinic.android.tests.utility.safelyDelete
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Uses the download manager to download a file into the external storage directory as a
@@ -40,8 +43,28 @@ suspend fun downloadFile(context: Context, source: Uri, fileName: String): File 
 
                     context.unregisterReceiver(this)
 
-                    // TODO check for error
-                    continuation.resume(file)
+                    downloadId?.let { id ->
+
+                        context.downloadManager?.getUriForDownloadedFile(id)?.let {
+                            // file was successfully downloaded
+                            continuation.resume(file)
+                        } ?: let {
+                            // there was some sort of error
+                            context.downloadManager?.query(DownloadManager.Query().setFilterById(id))
+                                ?.takeIf {it.moveToFirst() }?.let { cursor ->
+                                    val reason = cursor.getInt( cursor.getColumnIndex(DownloadManager.COLUMN_REASON))
+                                    continuation.resumeWithException (
+                                        when( reason ){
+                                            404 -> FileNotFoundException("Can not find ${source.path}")
+                                            DownloadManager.ERROR_HTTP_DATA_ERROR -> IOException("HTTP data error")
+                                            DownloadManager.ERROR_INSUFFICIENT_SPACE -> OutOfMemoryError("Insufficient space for file")
+                                            DownloadManager.ERROR_TOO_MANY_REDIRECTS -> IOException("Too many redirects")
+                                            else -> Exception("Error downloading: $reason")
+                                    }
+                                )
+                            } ?: continuation.resumeWithException( Exception("Unable to download file"))
+                        }
+                    }
                 }
             }
 

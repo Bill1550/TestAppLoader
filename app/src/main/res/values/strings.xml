@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Test Loader</string>
+    <string name="label_file_name">File:</string>
+    <string name="label_package_name">Package:</string>
+    <string name="label_last_updated">Updated:</string>
+    <string name="label_version_name">Version:</string>
+    <string name="title_error">Error</string>
+    <string name="button_label_exit">Exit</string>
 </resources>

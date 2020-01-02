@@ -1,13 +1,16 @@
 package com.mavenclinic.android.tests.loader
 
 import android.content.Intent
+import android.content.pm.PackageInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
-import com.mavenclinic.android.tests.utility.asMillisecondTime
-import com.mavenclinic.android.tests.utility.summary
-import com.mavenclinic.android.tests.utility.toZonedDateTime
+import com.mavenclinic.android.tests.utility.*
+import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,17 +49,53 @@ class MainActivity : AppCompatActivity() {
 
                 lifecycleScope.launchWhenCreated {
 
-                    try {
-                        val file = downloadFile(this@MainActivity, uri, targetFileName )
-                        val packageInfo = packageManager.getPackageArchiveInfo( file.path, 0 )
+                    var file: File? = null
 
-                        Timber.i("Downloaded package name=${packageInfo?.packageName}, version=${packageInfo?.versionName}, updated=${packageInfo?.lastUpdateTime?.asMillisecondTime()?.toZonedDateTime()?.toString()}")
+                    try {
+                        showLoadingUx(true)
+                        file = downloadFile(this@MainActivity, uri, targetFileName )
+                        bindFileInfo(file)
+                        val packageInfo = getApkInfoOrThrow( file )
+                        bindPackageInfo(packageInfo)
+
                     } catch (e: Exception) {
                         Timber.e("Error when attempting to download file: ${e.summary()}")
+                        displayError(e)
+                        file?.safelyDelete()
+                    } finally {
+                        showLoadingUx(false)
                     }
                 }
             }
         }
 
+    }
+
+    private fun showLoadingUx( loading: Boolean ) {
+        progressBar.visibility = if (loading) View.VISIBLE else View.INVISIBLE
+    }
+
+    private fun bindPackageInfo( info: PackageInfo? ) {
+        Timber.i("Package info, last updated=${info?.lastUpdateTime}")
+        packageNameValueView.text = info?.packageName ?: "--"
+        versionNameValueView.text = info?.versionName ?: "--"
+    }
+
+    private fun bindFileInfo( file: File? ){
+        fileNameValueView.text = file?.name ?: ""
+        lastUpdatedValueView.text = file?.lastModified()?.asMillisecondTime()?.toZonedDateTime()?.toString() ?: ""
+    }
+
+    private fun displayError( t: Throwable ) {
+
+        AlertDialog.Builder(this)
+            .setTitle( R.string.title_error)
+            .setMessage( "${t.javaClass.simpleName}\n${t.message}" )
+            .setPositiveButton(R.string.button_label_exit){ dialog, _ ->
+                finish()
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
     }
 }
