@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
-import com.mavenclinic.android.tests.utility.downloadManager
+import com.mavenclinic.android.tests.utilities.extensions.downloadManager
 import com.mavenclinic.android.tests.utility.safelyDelete
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber

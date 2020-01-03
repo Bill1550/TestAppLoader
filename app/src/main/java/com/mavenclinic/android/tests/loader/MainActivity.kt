@@ -7,6 +7,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import com.mavenclinic.android.tests.utilities.extensions.getApkInfoOrThrow
+import com.mavenclinic.android.tests.utilities.time.asMillisecondTime
+import com.mavenclinic.android.tests.utilities.time.toZonedDateTime
 import com.mavenclinic.android.tests.utility.*
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber

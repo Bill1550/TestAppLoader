@@ -1,4 +1,4 @@
-package com.mavenclinic.android.tests.utility
+package com.mavenclinic.android.tests.utilities.time
 
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
@@ -9,4 +9,5 @@ inline class MillisecondTime( val value: Long )
 fun MillisecondTime.toZonedDateTime(): ZonedDateTime =
     ZonedDateTime.ofInstant( Instant.ofEpochMilli(value), ZoneId.systemDefault())
 
-fun Long.asMillisecondTime(): MillisecondTime = MillisecondTime(this)
+fun Long.asMillisecondTime(): MillisecondTime =
+    MillisecondTime(this)

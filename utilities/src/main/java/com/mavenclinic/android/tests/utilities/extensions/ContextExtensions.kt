@@ -1,4 +1,4 @@
-package com.mavenclinic.android.tests.utility
+package com.mavenclinic.android.tests.utilities.extensions
 
 import android.app.DownloadManager
 import android.content.Context
