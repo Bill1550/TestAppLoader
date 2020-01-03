@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val ACTION_DOWNLOAD = "com.mavenclinic.test.DOWNLOAD"
+        const val EXTRA_TARGET = "target"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,33 +46,33 @@ class MainActivity : AppCompatActivity() {
     private fun handleDownloadIntent( intent: Intent ) {
 
         Timber.i("Download intent received: uri=${intent.data}")
+        Timber.i("target='${intent.getStringExtra("target")}'")
 
-        intent.data?.let { uri ->
-            uri.lastPathSegment?.let { targetFileName ->
-                Timber.i("Target file name=$targetFileName")
+//        intent.data?.let { uri ->
+//            uri.lastPathSegment?.let { downloadFileName ->
+//                Timber.i("Target file name=$downloadFileName")
 
-                lifecycleScope.launchWhenCreated {
+        lifecycleScope.launchWhenCreated {
 
-                    var file: File? = null
+            var file: File? = null
 
-                    try {
-                        showLoadingUx(true)
-                        file = downloadFile(this@MainActivity, uri, targetFileName )
-                        bindFileInfo(file)
-                        val packageInfo = getApkInfoOrThrow( file )
-                        bindPackageInfo(packageInfo)
-
-                    } catch (e: Exception) {
-                        Timber.e("Error when attempting to download file: ${e.summary()}")
-                        displayError(e)
-                        file?.safelyDelete()
-                    } finally {
-                        showLoadingUx(false)
-                    }
-                }
+            try {
+                showLoadingUx(true)
+                val uri = requireNotNull( intent.data ){ "Missing download URL"}
+                val downloadFileName = requireNotNull( uri.lastPathSegment ){"Improperly formatted URL"}
+                val target = requireNotNull( intent.getStringExtra(EXTRA_TARGET)){"Target missing"}
+                file = downloadFile(this@MainActivity, uri, downloadFileName )
+                bindFileInfo(file, target)
+                val packageInfo = getApkInfoOrThrow( file )
+                bindPackageInfo(packageInfo)
+            } catch (e: Exception) {
+                Timber.e("Error when attempting to download file: ${e.summary()}")
+                displayError(e)
+                file?.safelyDelete()
+            } finally {
+                showLoadingUx(false)
             }
         }
-
     }
 
     private fun showLoadingUx( loading: Boolean ) {
@@ -84,9 +85,10 @@ class MainActivity : AppCompatActivity() {
         versionNameValueView.text = info?.versionName ?: "--"
     }
 
-    private fun bindFileInfo( file: File? ){
+    private fun bindFileInfo( file: File?, target: String ){
         fileNameValueView.text = file?.name ?: ""
         lastUpdatedValueView.text = file?.lastModified()?.asMillisecondTime()?.toZonedDateTime()?.toString() ?: ""
+        targetValueView.text = target
     }
 
     private fun displayError( t: Throwable ) {
@@ -100,5 +102,11 @@ class MainActivity : AppCompatActivity() {
             }
             .setCancelable(false)
             .show()
+    }
+
+
+    private fun getBootstrapperIntent( target: String ): Intent {
+
+        return Intent()
     }
 }

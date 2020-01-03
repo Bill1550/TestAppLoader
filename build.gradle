@@ -41,6 +41,11 @@ ext.versions = [
         compileTesting       : '0.11',
 ]
 
+ext.app_ids = [
+        base : 'com.mavenclinic.android.tests',
+        bootstrapper : 'com.mavenclinic.android.tests.bootstrapper',
+        loader : 'com.mavenclinic.android.tests.loader'
+]
 
 buildscript {
     ext.kotlin_version = '1.3.61'

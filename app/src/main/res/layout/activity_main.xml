@@ -97,8 +97,30 @@
         app:layout_constraintStart_toStartOf="@id/fileNameValueView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/packageNameValueView"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/targetValueView"
         tools:text="1.2.3"
+        style="@style/DataText"
+        />
+
+    <TextView
+        android:id="@+id/targetLabelView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_target"
+        app:layout_constraintEnd_toEndOf="@id/fileNameLabelView"
+        app:layout_constraintBaseline_toBaselineOf="@id/targetValueView"
+        style="@style/LabelText"
+        />
+
+    <TextView
+        android:id="@+id/targetValueView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/fileNameValueView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/versionNameValueView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="prod"
         style="@style/DataText"
         />
 

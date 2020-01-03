@@ -5,21 +5,77 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.0"
 
+    signingConfigs {
+        test {
+            storeFile file('../TestLoaderKeystore.jks')
+            storePassword 'TestLoader1'
+            keyAlias 'debug'
+            keyPassword 'TestLoader2'
+        }
+    }
 
     defaultConfig {
-        applicationId "com.mavenclinic.android.tests.bootstrapper"
+        applicationId app_ids.bootstrapper
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//        signingConfig signingConfigs.test
+
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        release {
+//        release {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+
+        qa1 {
+            debuggable true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.test
+            applicationIdSuffix '.qa1'
+            versionNameSuffix '-qa1'
+            resValue "string", "app_name", "QA1 Loader"
+            matchingFallbacks = ['debug']
+        }
+
+        qa2 {
+            debuggable true
+            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.test
+            applicationIdSuffix '.qa2'
+            versionNameSuffix '-qa2'
+            resValue "string", "app_name", "QA2 Loader"
+            matchingFallbacks = ['debug']
+        }
+
+        qa3 {
+            debuggable true
+            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.test
+            applicationIdSuffix '.qa3'
+            versionNameSuffix '-qa3'
+            resValue "string", "app_name", "QA3 Loader"
+            matchingFallbacks = ['debug']
+        }
+
+        prod {
+            debuggable true
+            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.test
+            applicationIdSuffix '.prod'
+            versionNameSuffix '-prod'
+            resValue "string", "app_name", "Prod Loader"
+            matchingFallbacks = ['debug']
         }
     }
 
