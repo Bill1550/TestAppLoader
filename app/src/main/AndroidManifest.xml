@@ -16,6 +16,17 @@
         android:networkSecurityConfig="@xml/network_security_config"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="n">
+
+        <provider
+            android:authorities="com.mavenclinic.tests.loader.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths"/>
+        </provider>
+
         <activity android:name=".MainActivity"
             android:launchMode="singleInstance">
             <intent-filter>

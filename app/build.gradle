@@ -15,8 +15,8 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "BOOTSTRAPPER_APP_ID", app_ids.bootstrapper )
-        buildConfigField("String", "BOOTSTRAPPER_FILE_PREFIX", 'bootstrapper-')
+        buildConfigField("String", "BOOTSTRAPPER_APP_ID", '"'+app_ids.bootstrapper+'"' )
+        buildConfigField("String", "BOOTSTRAPPER_FILE_PREFIX", '"bootstrapper-"')
     }
 
     kotlinOptions {

@@ -7,4 +7,5 @@
     <string name="title_error">Error</string>
     <string name="button_label_exit">Exit</string>
     <string name="label_target">Target:</string>
+    <string name="title_success">Success!</string>
 </resources>
