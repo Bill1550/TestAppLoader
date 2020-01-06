@@ -72,7 +72,10 @@ class MainActivity : AppCompatActivity() {
 
                 val loadingUri = FileProvider.getUriForFile(this@MainActivity, "com.mavenclinic.tests.loader.fileprovider", file)
 
-                val bootstrapperIntent = getBootstrapperIntent(target).apply { data = loadingUri }
+                val bootstrapperIntent = getBootstrapperIntent(target).apply {
+                    data = loadingUri
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                }
                 startActivityForResult(bootstrapperIntent, RC_CALL_BOOTSTRAPPER)
             } catch (e: Exception) {
                 Timber.e("Error when attempting to download file: ${e.summary()}")

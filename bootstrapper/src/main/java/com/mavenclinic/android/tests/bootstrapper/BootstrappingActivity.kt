@@ -5,9 +5,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import com.mavenclinic.android.tests.apk.handleInstallationResponseIntent
+import com.mavenclinic.android.tests.apk.installApk
 import com.mavenclinic.android.tests.utilities.Constants
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -21,12 +25,38 @@ class BootstrappingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         Timber.i("Start action=${intent.action}")
-        if ( intent.action == Constants.ACTION_INSTALL_APK )
-            handleInstallIntent(intent)
-        else {
+        if (!handleIntent(intent)) {
             Timber.w("Unsupported start action: ${intent.action}")
-            finish()
+//            finish()
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        Timber.i("onNewIntent, action=${intent?.action}")
+        if (!handleIntent(intent))
+            super.onNewIntent(intent)
+    }
+
+    private fun handleIntent( intent: Intent?): Boolean {
+        intent ?: return false
+
+        return  if ( intent.action == Constants.ACTION_INSTALL_APK ){
+            handleInstallIntent( intent )
+            true
+        } else
+            try {
+                handleInstallationResponseIntent(intent){ pi ->
+                    Timber.i("Installation success: package=${pi}")
+                    setResult(
+                        Activity.RESULT_OK,
+                        Intent().also { it.putExtra( Constants.EXTRA_PACKAGE_INFO, pi ) }
+                    )
+                    finish()
+                }
+            } catch (e: Exception) {
+                returnError(e)
+                true
+            }
     }
 
     private fun handleInstallIntent( intent: Intent) {
@@ -35,20 +65,25 @@ class BootstrappingActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
 
-            delay(1000)
-
-            Timber.i("done w/ load")
-
-            // simulate an error
-            //setResult(Constants.RESULT_ERROR, Exception("this is a test").toErrorIntent() )
-            setResult(
-                Activity.RESULT_OK,
-                Intent().also { it.putExtra( Constants.EXTRA_PACKAGE_INFO, packageManager.getPackageInfo(packageName,0)) }
-            )
-
-            finish()
+            withContext( Dispatchers.IO ) {
+                try {
+                    intent.data?.let { uri ->
+                        installApk(uri)
+                    }
+                } catch (e: Exception) {
+                    returnError(e)
+                }
+            }
+            // result will be in intent handled by 'handleInstallationResponseIntent'
         }
     }
+
+    private fun returnError( t: Throwable ) {
+        Timber.e("Returning error: ${t.javaClass.simpleName} ${t.message}")
+        setResult( Constants.RESULT_ERROR, t.toErrorIntent() )
+//                finish()
+    }
+
 
     private fun Throwable.toErrorIntent( ): Intent = Intent(Intent.ACTION_APP_ERROR).also {
         it.putExtra( Constants.EXTRA_ERROR_TYPE, this.javaClass.name )
