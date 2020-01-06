@@ -9,6 +9,7 @@ object Constants {
     const val EXTRA_ERROR_MESSAGE = "message"
     const val EXTRA_ERROR_TYPE = "type"
     const val EXTRA_PACKAGE_INFO = "package_info"
+    const val EXTRA_FILE_NAME = "file_name"
 
     const val RESULT_ERROR = Activity.RESULT_FIRST_USER
 

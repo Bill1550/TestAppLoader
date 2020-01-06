@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
         const val RC_CALL_BOOTSTRAPPER = 123
     }
 
+    private var alertDialog: AlertDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -75,6 +77,7 @@ class MainActivity : AppCompatActivity() {
                 val bootstrapperIntent = getBootstrapperIntent(target).apply {
                     data = loadingUri
                     flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    putExtra( Constants.EXTRA_FILE_NAME, file.path )
                 }
                 startActivityForResult(bootstrapperIntent, RC_CALL_BOOTSTRAPPER)
             } catch (e: Exception) {
@@ -89,19 +92,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode){
-            RC_CALL_BOOTSTRAPPER -> handleLoadResult(resultCode, data)
+            RC_CALL_BOOTSTRAPPER -> handleBootstrapperResult(resultCode, data)
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
 
     }
 
-    private fun handleLoadResult( resultCode: Int, data: Intent? ) {
-        Timber.i("loader result: code=${resultCode}")
+    private fun handleBootstrapperResult(resultCode: Int, resultIntent: Intent? ) {
+        Timber.i("bootstrapper result: code=${resultCode}")
         if ( resultCode != Activity.RESULT_OK ){
-            displayError( data?.getStringExtra(Constants.EXTRA_ERROR_TYPE) ?: "Unknown", data?.getStringExtra(Constants.EXTRA_ERROR_MESSAGE))
+            displayError( resultIntent?.getStringExtra(Constants.EXTRA_ERROR_TYPE) ?: "Unknown", resultIntent?.getStringExtra(Constants.EXTRA_ERROR_MESSAGE))
         } else {
-            displaySuccess( data?.getParcelableExtra( Constants.EXTRA_PACKAGE_INFO ) )
+            displaySuccess( resultIntent?.getParcelableExtra( Constants.EXTRA_PACKAGE_INFO ) )
         }
+
+        Timber.i("File path: ${resultIntent?.getStringExtra( Constants.EXTRA_FILE_NAME )}")
+        resultIntent?.getStringExtra( Constants.EXTRA_FILE_NAME )?.let { File(it).safelyDelete() }
     }
 
     private fun showLoadingUx( loading: Boolean ) {
@@ -131,7 +137,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun displayError( errorClass: String, message: String? ) {
 
-        AlertDialog.Builder(this)
+        alertDialog?.cancel()
+
+        alertDialog = AlertDialog.Builder(this)
             .setTitle( R.string.title_error)
             .setMessage( "${errorClass}\n${message}" )
             .setPositiveButton(R.string.button_label_exit){ dialog, _ ->
@@ -139,11 +147,14 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .setCancelable(false)
+            .setOnDismissListener { alertDialog = null }
             .show()
     }
 
     private fun displaySuccess( info: PackageInfo? ) {
-        AlertDialog.Builder(this)
+        alertDialog?.cancel()
+
+        alertDialog = AlertDialog.Builder(this)
             .setTitle( R.string.title_success)
             .setMessage( "Installed ${info?.packageName}" )
             .setPositiveButton(R.string.button_label_exit){ dialog, _ ->
@@ -151,6 +162,7 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .setCancelable(false)
+            .setOnDismissListener { alertDialog = null }
             .show()
     }
 
@@ -171,5 +183,11 @@ class MainActivity : AppCompatActivity() {
         return Intent(Constants.ACTION_INSTALL_APK).apply {
             component = ComponentName( info.packageName, "${BuildConfig.BOOTSTRAPPER_APP_ID}.BootstrappingActivity")
         }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        alertDialog?.cancel()
     }
 }

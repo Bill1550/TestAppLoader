@@ -20,15 +20,27 @@ import timber.log.Timber
  */
 class BootstrappingActivity : AppCompatActivity() {
 
+    companion object {
+        const val STATE_FILE_PATH = "file_path"
+    }
+
+    private var filePath: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        filePath = savedInstanceState?.getString( STATE_FILE_PATH )
         setContentView(R.layout.activity_main)
 
         Timber.i("Start action=${intent.action}")
         if (!handleIntent(intent)) {
             Timber.w("Unsupported start action: ${intent.action}")
-//            finish()
+            finish()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString( STATE_FILE_PATH, filePath )
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -46,10 +58,13 @@ class BootstrappingActivity : AppCompatActivity() {
         } else
             try {
                 handleInstallationResponseIntent(intent){ pi ->
-                    Timber.i("Installation success: package=${pi}")
+                    Timber.i("Installation success: package=${pi}, filePath=${filePath}")
                     setResult(
                         Activity.RESULT_OK,
-                        Intent().also { it.putExtra( Constants.EXTRA_PACKAGE_INFO, pi ) }
+                        Intent().also {
+                            it.putExtra( Constants.EXTRA_PACKAGE_INFO, pi )
+                            it.putExtra( Constants.EXTRA_FILE_NAME, filePath )
+                        }
                     )
                     finish()
                 }
@@ -68,6 +83,7 @@ class BootstrappingActivity : AppCompatActivity() {
             withContext( Dispatchers.IO ) {
                 try {
                     intent.data?.let { uri ->
+                        filePath = intent.getStringExtra( Constants.EXTRA_FILE_NAME )
                         installApk(uri)
                     }
                 } catch (e: Exception) {
@@ -81,12 +97,13 @@ class BootstrappingActivity : AppCompatActivity() {
     private fun returnError( t: Throwable ) {
         Timber.e("Returning error: ${t.javaClass.simpleName} ${t.message}")
         setResult( Constants.RESULT_ERROR, t.toErrorIntent() )
-//                finish()
+                finish()
     }
 
 
     private fun Throwable.toErrorIntent( ): Intent = Intent(Intent.ACTION_APP_ERROR).also {
         it.putExtra( Constants.EXTRA_ERROR_TYPE, this.javaClass.name )
         it.putExtra( Constants.EXTRA_ERROR_MESSAGE, this.message )
+        it.putExtra( Constants.EXTRA_FILE_NAME, filePath )
     }
 }
